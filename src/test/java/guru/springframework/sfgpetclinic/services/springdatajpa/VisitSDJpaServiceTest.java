@@ -9,11 +9,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VisitSDJpaServiceTest {
@@ -28,18 +31,26 @@ class VisitSDJpaServiceTest {
     void findAll() {
         Set<Visit> visits = new HashSet<>();
 
-        service.findAll();
+        when(repository.findAll()).thenReturn(visits);
+
+        Set<Visit> visitsFound = service.findAll();
 
         verify(repository).findAll();
+
+        assertThat(visitsFound).isNotNull().isEqualTo(visits);
     }
 
     @Test
     void findById() {
+        Visit visit = new Visit();
 
-        service.findById(1l);
+        when(repository.findById(anyLong())).thenReturn(Optional.of(visit));
+
+        Visit foundVisit = service.findById(1l);
 
         verify(repository).findById(anyLong());
 
+        assertThat(foundVisit).isInstanceOf(Visit.class).isNotNull();
 
     }
 
@@ -47,9 +58,13 @@ class VisitSDJpaServiceTest {
     void save() {
         Visit visit = new Visit();
 
-        service.save(visit);
+        when(repository.save(any(Visit.class))).thenReturn(visit);
+
+        Visit visit1 = service.save(visit);
 
         verify(repository).save(any(Visit.class));
+
+        assertThat(visit1).isInstanceOf(Visit.class).isNotNull().isEqualTo(visit);
 
     }
 
